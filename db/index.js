@@ -4,18 +4,18 @@ class Database {
   constructor() {
     this.pool = new Pool({
       user: "postgres",
-      password: "DLG196330",
+      password: "12345",
       host: "localhost",
       database: "employee_db",
     });
   }
-  
+
   async executeQuery(query, table) {
     try {
       const client = await this.pool.connect();
       const result = await this.pool.query(query);
       client.release();
-      console.table(result.rows);
+      console.log(result.rows);
     } catch (error) {
       console.log(`Error fetching ${table}:`, error);
     }
@@ -32,7 +32,7 @@ class Database {
     this.executeQuery(query, "role");
   }
 
-  // Disply employees table
+  // Display employees table
   getEmployees() {
     const query = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
     FROM employee e

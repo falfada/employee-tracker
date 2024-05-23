@@ -10,21 +10,23 @@ const questions = [
   },
 ];
 
-function handleResponse(data) {
+async function handleResponse(data) {
+  const db = new Database();
   switch (data.options) {
     case "View All Employees":
-        const employees = new Database();
-        console.log(employees.getEmployees());
+      await db.getEmployees();
       break;
     case "View All Roles":
-      const roles = new Database();
-      console.log(roles.getRoles());
+      await db.getRoles();
       break;
     case "View All Departments":
-      const departments = new Database();
-      console.log(departments.getDepartments());
+      await db.getDepartments();
       break;
   }
+  askQuestions();
 }
 
-inquirer.prompt(questions).then(handleResponse);
+function askQuestions() {
+  inquirer.prompt(questions).then(handleResponse);
+}
+askQuestions();
