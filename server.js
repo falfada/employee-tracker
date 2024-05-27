@@ -7,7 +7,12 @@ const questions = [
     type: "list",
     message: "What would you like to do?",
     name: "options",
-    choices: ["View All Employees", "View All Roles", "View All Departments"],
+    choices: [
+      "View All Employees",
+      "View All Roles",
+      "View All Departments",
+      "Add Department",
+    ],
   },
 ];
 
@@ -22,8 +27,10 @@ function handleResponse(data) {
     case "View All Departments":
       viewDepartments();
       break;
+    case "Add Department":
+      addDepartment();
+      break;
   }
-  // askQuestions();
 }
 
 // Display Employees Table
@@ -43,6 +50,18 @@ function viewDepartments() {
   db.getDepartments()
     .then((departments) => console.table(departments))
     .then(() => askQuestions());
+}
+
+// Add Department 
+function addDepartment(){
+  inquirer.prompt({
+    type: 'input',
+    message: 'What is the name of the department?',
+    name: 'newDepartmentName'
+  }).then((data) => {
+    db.addDepartment(data.newDepartmentName);
+    console.log(`${data.newDepartmentName} added to the database`);
+  }).then(() => askQuestions());
 }
 // Main Questions
 function askQuestions() {

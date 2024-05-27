@@ -41,6 +41,13 @@ class Database {
     LEFT JOIN employee m ON e.manager_id = m.id`;
     return await this.executeQuery(query, "employee");
   }
+
+  async addDepartment(department) {
+    const client = await this.pool.connect();
+    const result = await client.query(`INSERT INTO department (name) VALUES ('${department}')`);
+    client.release();
+    // return result.rows;
+  }
 }
 
 module.exports = Database;
