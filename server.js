@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const Database = require("./db/index");
+const db = new Database();
 
 const questions = [
   {
@@ -10,23 +11,42 @@ const questions = [
   },
 ];
 
-async function handleResponse(data) {
-  const db = new Database();
+function handleResponse(data) {
   switch (data.options) {
     case "View All Employees":
-      await db.getEmployees();
+      viewEmployees();
       break;
     case "View All Roles":
-      await db.getRoles();
+      viewRoles();
       break;
     case "View All Departments":
-      await db.getDepartments();
+      viewDepartments();
       break;
   }
-  askQuestions();
+  // askQuestions();
 }
 
+// Display Employees Table
+function viewEmployees() {
+  db.getEmployees()
+    .then((employee) => console.table(employee))
+    .then(() => askQuestions());
+}
+// Display Roles Table
+function viewRoles() {
+  db.getRoles()
+    .then((roles) => console.table(roles))
+    .then(() => askQuestions());
+}
+// Display Departments Table
+function viewDepartments() {
+  db.getDepartments()
+    .then((departments) => console.table(departments))
+    .then(() => askQuestions());
+}
+// Main Questions
 function askQuestions() {
   inquirer.prompt(questions).then(handleResponse);
 }
+
 askQuestions();
