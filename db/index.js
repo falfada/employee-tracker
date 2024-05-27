@@ -41,12 +41,25 @@ class Database {
     LEFT JOIN employee m ON e.manager_id = m.id`;
     return await this.executeQuery(query, "employee");
   }
-
+  // Add New Department
   async addDepartment(department) {
     const client = await this.pool.connect();
-    const result = await client.query(`INSERT INTO department (name) VALUES ('${department}')`);
+    const result = await client.query(
+      `INSERT INTO department (name) VALUES ('${department}')`
+    );
     client.release();
-    // return result.rows;
+  }
+  // Add New Role
+  async addRole(role) {
+    const client = await this.pool.connect();
+    const department = await client.query(
+      `SELECT id FROM department WHERE name = '${role.newRoleDepartment}'`
+    );
+    const departmentId = department.rows[0].id;
+    await client.query(
+      `INSERT INTO role (title, salary, department_id) VALUES ('${role.newRole}', '${role.newRoleSalary}', ${departmentId})`
+    );
+    client.release();
   }
 }
 

@@ -12,6 +12,7 @@ const questions = [
       "View All Roles",
       "View All Departments",
       "Add Department",
+      "Add Role",
     ],
   },
 ];
@@ -29,6 +30,9 @@ function handleResponse(data) {
       break;
     case "Add Department":
       addDepartment();
+      break;
+    case "Add Role":
+      addRole();
       break;
   }
 }
@@ -52,15 +56,46 @@ function viewDepartments() {
     .then(() => askQuestions());
 }
 
-// Add Department 
-function addDepartment(){
-  inquirer.prompt({
-    type: 'input',
-    message: 'What is the name of the department?',
-    name: 'newDepartmentName'
-  }).then((data) => {
-    db.addDepartment(data.newDepartmentName);
-    console.log(`${data.newDepartmentName} added to the database`);
+// Add Department
+function addDepartment() {
+  inquirer
+    .prompt({
+      type: "input",
+      message: "What is the name of the department?",
+      name: "newDepartmentName",
+    })
+    .then((data) => {
+      db.addDepartment(data.newDepartmentName);
+      console.log(`${data.newDepartmentName} added to the database`);
+    })
+    .then(() => askQuestions());
+}
+
+// Add Role
+async function addRole() {
+  const departments = await db.getDepartments();
+  const currentDepartments = departments.map((item) => item.name);
+
+  await inquirer.prompt([
+    {
+      type: 'input',
+      message: 'What is the name of the role?',
+      name: 'newRole',
+    },
+    {
+      type: 'input',
+      message: 'What is the salary of the role?',
+      name: 'newRoleSalary',
+    },
+    {
+      type: 'list',
+      message: 'Which department does the role belongs to?',
+      name: 'newRoleDepartment',
+      choices: currentDepartments,
+    },
+  ]).then((data) => {
+    db.addRole(data)
+    console.log(`${data.newRole} added to the database`);
   }).then(() => askQuestions());
 }
 // Main Questions
