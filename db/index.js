@@ -32,6 +32,12 @@ class Database {
     return await this.executeQuery(query, "role");
   }
 
+  // Query to return managers
+  async getManagers(){
+    const query = 'SELECT * FROM employee WHERE manager_id IS NULL';
+    return await this.executeQuery(query, "employee");
+  }
+
   // Query to return employees
   async getEmployees() {
     const query = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
@@ -52,12 +58,34 @@ class Database {
   // Add New Role
   async addRole(role) {
     const client = await this.pool.connect();
+    // Getting department ID
     const department = await client.query(
       `SELECT id FROM department WHERE name = '${role.newRoleDepartment}'`
     );
     const departmentId = department.rows[0].id;
     await client.query(
       `INSERT INTO role (title, salary, department_id) VALUES ('${role.newRole}', '${role.newRoleSalary}', ${departmentId})`
+    );
+    client.release();
+  }
+
+  // Add New Employee
+  async addEmployee(employee){
+    const client = await this.pool.connect();
+    // Getting role ID
+    const role = await client.query(
+      `SELECT id FROM role WHERE title = '${employee.newEmployeeRole}'`
+    );
+    const roleId = role.rows[0].id;
+    // Getting manager ID
+    const managerFullName = employee.newEmployeeManager;
+    const managerSplit = managerFullName.split(" ");
+    const managerName = managerSplit[0];
+    const managerLastName = managerSplit[1];
+    const manager = await client.query(`SELECT id FROM employee WHERE first_name = '${managerName}' AND last_name = '${managerLastName}'`);
+    const managerId = manager.rows[0].id;
+    await client.query(
+      `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${employee.newEmployeeName}', '${employee.newEmployeeLastName}', ${roleId}, ${managerId})`
     );
     client.release();
   }

@@ -13,6 +13,7 @@ const questions = [
       "View All Departments",
       "Add Department",
       "Add Role",
+      "Add Employee",
     ],
   },
 ];
@@ -33,6 +34,9 @@ function handleResponse(data) {
       break;
     case "Add Role":
       addRole();
+      break;
+    case "Add Employee":
+      addEmployee();
       break;
   }
 }
@@ -66,7 +70,7 @@ function addDepartment() {
     })
     .then((data) => {
       db.addDepartment(data.newDepartmentName);
-      console.log(`${data.newDepartmentName} added to the database`);
+      console.log(`Added ${data.newDepartmentName} to the database`);
     })
     .then(() => askQuestions());
 }
@@ -76,27 +80,71 @@ async function addRole() {
   const departments = await db.getDepartments();
   const currentDepartments = departments.map((item) => item.name);
 
-  await inquirer.prompt([
-    {
-      type: 'input',
-      message: 'What is the name of the role?',
-      name: 'newRole',
-    },
-    {
-      type: 'input',
-      message: 'What is the salary of the role?',
-      name: 'newRoleSalary',
-    },
-    {
-      type: 'list',
-      message: 'Which department does the role belongs to?',
-      name: 'newRoleDepartment',
-      choices: currentDepartments,
-    },
-  ]).then((data) => {
-    db.addRole(data)
-    console.log(`${data.newRole} added to the database`);
-  }).then(() => askQuestions());
+  await inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the role?",
+        name: "newRole",
+      },
+      {
+        type: "input",
+        message: "What is the salary of the role?",
+        name: "newRoleSalary",
+      },
+      {
+        type: "list",
+        message: "Which department does the role belongs to?",
+        name: "newRoleDepartment",
+        choices: currentDepartments,
+      },
+    ])
+    .then((data) => {
+      db.addRole(data);
+      console.log(`Added ${data.newRole} to the database`);
+    })
+    .then(() => askQuestions());
+}
+// Add Employee
+async function addEmployee() {
+  const roles = await db.getRoles();
+  const currentRoles = roles.map((item) => item.title);
+  const managers = await db.getManagers();
+  const currentManagers = managers.map(
+    (item) => `${item.first_name} ${item.last_name}`
+  );
+  await inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the employee's first name?",
+        name: "newEmployeeName",
+      },
+      {
+        type: "input",
+        message: "What is the employee's last name?",
+        name: "newEmployeeLastName",
+      },
+      {
+        type: "list",
+        message: "What is the employee's role?",
+        name: "newEmployeeRole",
+        choices: currentRoles,
+      },
+      {
+        type: "list",
+        message: "Who is the employee's manager?",
+        name: "newEmployeeManager",
+        choices: currentManagers,
+      },
+    ])
+    .then((data) => {
+      db.addEmployee(data);
+      console.log(
+        `Added ${data.newEmployeeName} ${data.newEmployeeLastName} to the database`
+      );
+    })
+    .then(() => askQuestions());
 }
 // Main Questions
 function askQuestions() {
