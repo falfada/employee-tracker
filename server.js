@@ -14,6 +14,7 @@ const questions = [
       "Add Department",
       "Add Role",
       "Add Employee",
+      "Update Employee Role",
     ],
   },
 ];
@@ -37,6 +38,9 @@ function handleResponse(data) {
       break;
     case "Add Employee":
       addEmployee();
+      break;
+    case "Update Employee Role":
+      updateEmployee();
       break;
   }
 }
@@ -143,6 +147,38 @@ async function addEmployee() {
       console.log(
         `Added ${data.newEmployeeName} ${data.newEmployeeLastName} to the database`
       );
+    })
+    .then(() => askQuestions());
+}
+
+// Update Employee
+async function updateEmployee() {
+  // Getting list of employees
+  const employees = await db.getEmployees();
+  const currentEmployees = employees.map(
+    (item) => `${item.first_name} ${item.last_name}`
+  );
+
+  const roles = await db.getRoles();
+  const currentRoles = roles.map((item) => item.title);
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "Which employee's role do you want to update?",
+        name: "updateEmployee",
+        choices: currentEmployees,
+      },
+      {
+        type: "list",
+        message: "Which role do you want to assign the selected employee?",
+        name: "updateRole",
+        choices: currentRoles,
+      },
+    ])
+    .then((data) => {
+      db.updateEmployee(data);
+      console.log("Updated employee's role");
     })
     .then(() => askQuestions());
 }

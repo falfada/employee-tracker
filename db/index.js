@@ -33,8 +33,8 @@ class Database {
   }
 
   // Query to return managers
-  async getManagers(){
-    const query = 'SELECT * FROM employee WHERE manager_id IS NULL';
+  async getManagers() {
+    const query = "SELECT * FROM employee WHERE manager_id IS NULL";
     return await this.executeQuery(query, "employee");
   }
 
@@ -70,7 +70,7 @@ class Database {
   }
 
   // Add New Employee
-  async addEmployee(employee){
+  async addEmployee(employee) {
     const client = await this.pool.connect();
     // Getting role ID
     const role = await client.query(
@@ -82,11 +82,37 @@ class Database {
     const managerSplit = managerFullName.split(" ");
     const managerName = managerSplit[0];
     const managerLastName = managerSplit[1];
-    const manager = await client.query(`SELECT id FROM employee WHERE first_name = '${managerName}' AND last_name = '${managerLastName}'`);
+    const manager = await client.query(
+      `SELECT id FROM employee WHERE first_name = '${managerName}' AND last_name = '${managerLastName}'`
+    );
     const managerId = manager.rows[0].id;
     await client.query(
       `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${employee.newEmployeeName}', '${employee.newEmployeeLastName}', ${roleId}, ${managerId})`
     );
+    client.release();
+  }
+
+  // Update employee
+  async updateEmployee(employee) {
+    const client = await this.pool.connect();
+    // Get employee full name
+    const employeeFullName = employee.updateEmployee.split(" ");
+    // Get the role ID
+    const roleQuery = {
+      text: "SELECT id FROM role WHERE title = $1",
+      values: [employee.updateRole],
+    };
+    const roleResult = await client.query(roleQuery);
+
+    const roleId = roleResult.rows[0].id;
+      // Update employee role using parameterized query
+      const updateQuery = {
+        text: "UPDATE employee SET role_id = $1 WHERE first_name = $2 AND last_name = $3",
+        values: [roleId, employeeFullName[0], employeeFullName[1]],
+      };
+      await client.query(updateQuery);
+   
+
     client.release();
   }
 }
